@@ -103,8 +103,8 @@ const App: React.FC = () => {
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-extrabold shadow-lg shadow-indigo-500/20 transform rotate-3">
               DJ
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-white">
-              STOCK<span className="text-indigo-500">.</span>
+            <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
+              DJ STOCK<span className="text-indigo-500">.</span>
             </h1>
           </div>
           
@@ -194,13 +194,13 @@ const App: React.FC = () => {
 
       <footer className="mt-auto py-10 border-t border-white/5 bg-[#0b1120]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-[11px] uppercase tracking-[0.2em] font-bold gap-6">
-          <p>© 2024 DJ STOCK ENTERPRISE. LUXURY EDITION.</p>
+          <p>© 2024 DJ ENTERPRISE. LUXURY EDITION.</p>
           <div className="flex gap-8">
             <span className="flex items-center gap-2 text-emerald-400">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></div> 
-              SECURE CLOUD ACTIVE
+              PRIVATE CLOUD ACTIVE
             </span>
-            <span className="text-indigo-400">VERIFIED SYSTEM v2.0</span>
+            <span className="text-indigo-400">ENCRYPTED SYSTEM v2.5</span>
           </div>
         </div>
       </footer>

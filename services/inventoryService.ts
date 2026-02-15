@@ -1,7 +1,7 @@
 
 import { Product, Transaction, InventoryState } from '../types';
 
-const STORAGE_KEY = 'omni_stock_v1';
+const STORAGE_KEY = 'user_branded_stock_v1';
 
 const INITIAL_DATA: InventoryState = {
   products: [

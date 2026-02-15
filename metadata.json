@@ -1,6 +1,6 @@
 {
-  "name": "Copy of DJ STOCK",
-  "description": "A premium, high-performance Inventory Management System for modern professionals. Real-time tracking, automated alerts, and sleek DJ-inspired aesthetics.",
+  "name": "DJ STOCK",
+  "description": "A premium, high-performance Inventory Management System. Real-time tracking, automated alerts, and sleek professional aesthetics designed by DJ.",
   "requestFramePermissions": [
     "camera"
   ]
