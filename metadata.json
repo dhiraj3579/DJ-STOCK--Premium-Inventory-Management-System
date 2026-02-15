@@ -1,0 +1,7 @@
+{
+  "name": "Copy of DJ STOCK",
+  "description": "A premium, high-performance Inventory Management System for modern professionals. Real-time tracking, automated alerts, and sleek DJ-inspired aesthetics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
