@@ -8,6 +8,7 @@ import InventoryTable from './components/InventoryTable';
 import TransactionsList from './components/TransactionsList';
 import ProductModal from './components/ProductModal';
 import Scanner from './components/Scanner';
+import ProjectReport from './components/ProjectReport';
 
 import StockCharts from './components/StockCharts';
 
@@ -18,6 +19,7 @@ const App: React.FC = () => {
   const [scannerSource, setScannerSource] = useState<'main' | 'modal'>('main');
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
   const [scannedSku, setScannedSku] = useState<string | undefined>();
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'inventory' | 'history' | 'dashboard'>('inventory');
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
@@ -120,10 +122,32 @@ const App: React.FC = () => {
     });
   };
 
-  const handleScan = (sku: string, mode: 'IN' | 'OUT') => {
+  const handleScan = (sku: string, mode: 'IN' | 'OUT', continuous: boolean) => {
     // Clean the SKU: remove # prefix if present and trim
     const cleanSku = sku.trim().startsWith('#') ? sku.trim().substring(1) : sku.trim();
     
+    const processScan = () => {
+      const product = state.products.find(p => p.sku.toUpperCase() === cleanSku.toUpperCase());
+      if (product) {
+        handleUpdateStock(product.id, mode === 'IN' ? 1 : -1);
+      } else {
+        if (!continuous) {
+          if (window.confirm(`No product found for SKU: ${cleanSku}. Would you like to register it as a new asset?`)) {
+            setScannedSku(cleanSku);
+            setEditingProduct(undefined);
+            setIsProductModalOpen(true);
+          }
+        } else {
+          showToast(`SKU ${cleanSku} not found`, 'error');
+        }
+      }
+    };
+
+    if (continuous) {
+      processScan();
+      return;
+    }
+
     // Close scanner after a tiny delay to prevent "play() interrupted" errors
     setTimeout(() => {
       setIsScannerOpen(false);
@@ -134,18 +158,7 @@ const App: React.FC = () => {
       }
 
       // Use another small timeout to allow the modal to close before showing alerts or updating state
-      setTimeout(() => {
-        const product = state.products.find(p => p.sku.toUpperCase() === cleanSku.toUpperCase());
-        if (product) {
-          handleUpdateStock(product.id, mode === 'IN' ? 1 : -1);
-        } else {
-          if (window.confirm(`No product found for SKU: ${cleanSku}. Would you like to register it as a new asset?`)) {
-            setScannedSku(cleanSku);
-            setEditingProduct(undefined);
-            setIsProductModalOpen(true);
-          }
-        }
-      }, 100);
+      setTimeout(processScan, 100);
     }, 50);
   };
 
@@ -161,6 +174,13 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
               DJ STOCK<span className="text-indigo-500">.</span>
             </h1>
+            <button 
+              onClick={() => setIsReportOpen(true)}
+              className="ml-4 p-2 text-slate-500 hover:text-indigo-400 transition-all"
+              title="Project Report"
+            >
+              <Icons.History />
+            </button>
           </div>
           
           <div className="flex items-center gap-4">
@@ -169,18 +189,19 @@ const App: React.FC = () => {
                 setScannerSource('main');
                 setIsScannerOpen(true);
               }}
-              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              className="hidden md:flex items-center gap-2 px-5 py-2.5 text-sm font-black uppercase tracking-widest text-slate-300 hover:text-white hover:bg-white/5 rounded-xl transition-all border border-white/5"
             >
-              <Icons.Scan /> Scanner
+              <Icons.Scan /> Smart Scan
             </button>
             <button 
               onClick={() => {
                 setEditingProduct(undefined);
+                setScannedSku(undefined);
                 setIsProductModalOpen(true);
               }}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-xl shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95 border border-indigo-400/20"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95 border border-indigo-400/20"
             >
-              <Icons.Plus /> <span className="hidden sm:inline">New Product</span>
+              <Icons.Plus /> Register Asset
             </button>
           </div>
         </div>
@@ -188,7 +209,10 @@ const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-10">
-        <StatsCards products={state.products} />
+        <StatsCards 
+          products={state.products} 
+          onOpenReport={() => setIsReportOpen(true)}
+        />
 
         {/* Fancy Mobile Tabs */}
         <div className="flex md:hidden bg-slate-800/50 p-1.5 rounded-2xl mb-8 border border-white/5">
@@ -287,6 +311,10 @@ const App: React.FC = () => {
           onScan={handleScan}
           onClose={() => setIsScannerOpen(false)}
         />
+      )}
+
+      {isReportOpen && (
+        <ProjectReport onClose={() => setIsReportOpen(false)} />
       )}
 
       {/* Toast Notification */}

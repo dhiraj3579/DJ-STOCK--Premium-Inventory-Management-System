@@ -142,23 +142,31 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ products, onEdit, onDel
                       </span>
                     </td>
                     <td className="px-4 py-5">
-                      <div className="flex items-center gap-4">
-                        <span className={`text-sm font-black tabular-nums ${isLowStock ? 'text-red-500' : 'text-white'}`}>
-                          {p.stockLevel}
-                        </span>
-                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all scale-90">
-                          <button 
-                            onClick={() => onUpdateStock(p.id, -1)}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M5 12h14"/></svg>
-                          </button>
-                          <button 
-                            onClick={() => onUpdateStock(p.id, 1)}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M12 5v14m-7-7h14"/></svg>
-                          </button>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-4">
+                          <span className={`text-sm font-black tabular-nums ${isLowStock ? 'text-red-500' : 'text-white'}`}>
+                            {p.stockLevel}
+                          </span>
+                          <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all scale-90">
+                            <button 
+                              onClick={() => onUpdateStock(p.id, -1)}
+                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M5 12h14"/></svg>
+                            </button>
+                            <button 
+                              onClick={() => onUpdateStock(p.id, 1)}
+                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-all"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M12 5v14m-7-7h14"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-500 ${isLowStock ? 'bg-red-500' : 'bg-indigo-500'}`}
+                            style={{ width: `${Math.min(100, (p.stockLevel / (p.lowStockThreshold * 3)) * 100)}%` }}
+                          ></div>
                         </div>
                       </div>
                     </td>

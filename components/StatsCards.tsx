@@ -5,15 +5,16 @@ import { LOW_STOCK_LIMIT } from '../constants.tsx';
 
 interface StatsCardsProps {
   products: Product[];
+  onOpenReport: () => void;
 }
 
-const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
+const StatsCards: React.FC<StatsCardsProps> = ({ products, onOpenReport }) => {
   const totalValue = products.reduce((acc, p) => acc + (p.price * p.stockLevel), 0);
   const lowStockCount = products.filter(p => p.stockLevel <= p.lowStockThreshold).length;
   const totalStock = products.reduce((acc, p) => acc + p.stockLevel, 0);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
       <div className="bg-[#1e293b]/50 backdrop-blur-md p-8 rounded-[2rem] border border-white/5 shadow-2xl group hover:border-indigo-500/30 transition-all">
         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Portfolio Value</p>
         <h3 className="text-3xl font-extrabold text-white mt-2 group-hover:scale-105 transition-transform origin-left">
@@ -44,6 +45,19 @@ const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
           {lowStockCount > 0 ? 'CRITICAL DEPLETION' : 'SUPPLY OPTIMIZED'}
         </div>
       </div>
+
+      <button 
+        onClick={onOpenReport}
+        className="bg-indigo-600/10 backdrop-blur-md p-8 rounded-[2rem] border border-indigo-500/20 shadow-2xl group hover:bg-indigo-600/20 transition-all text-left"
+      >
+        <p className="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-1">System Intel</p>
+        <h3 className="text-3xl font-extrabold text-white mt-2 group-hover:translate-x-2 transition-transform">
+          Project Report
+        </h3>
+        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-white bg-indigo-600 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
+          View Documentation
+        </div>
+      </button>
     </div>
   );
 };
