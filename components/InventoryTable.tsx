@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { Icons } from '../constants.tsx';
+import { Icons, CATEGORIES } from '../constants.tsx';
 
 interface InventoryTableProps {
   products: Product[];
@@ -12,31 +12,98 @@ interface InventoryTableProps {
 
 const InventoryTable: React.FC<InventoryTableProps> = ({ products, onEdit, onDelete, onUpdateStock }) => {
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
-    p.sku.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
+                         p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesLowStock = !showLowStockOnly || p.stockLevel <= p.lowStockThreshold;
+    
+    return matchesSearch && matchesCategory && matchesLowStock;
+  });
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'SKU', 'Category', 'Stock Level', 'Price', 'Threshold'];
+    const rows = filteredProducts.map(p => [
+      p.name,
+      p.sku,
+      p.category,
+      p.stockLevel,
+      p.price,
+      p.lowStockThreshold
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `inventory_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="bg-slate-900/40 border border-white/5 rounded-[2rem] overflow-hidden backdrop-blur-xl">
-      <div className="p-8 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/5">
-        <div>
-          <h3 className="text-xl font-extrabold text-white tracking-tight">Vault Inventory</h3>
-          <p className="text-slate-500 text-xs mt-1 font-medium">Managing all registered SKU entities</p>
-        </div>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
-            <Icons.Search />
+      <div className="p-8 border-b border-white/5 flex flex-col gap-6 bg-white/5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-xl font-extrabold text-white tracking-tight">Vault Inventory</h3>
+            <p className="text-slate-500 text-xs mt-1 font-medium">Managing all registered SKU entities</p>
           </div>
-          <input
-            type="text"
-            placeholder="Search the vault..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="block w-full md:w-80 pl-11 pr-4 py-3 bg-slate-800/50 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-sm text-white placeholder-slate-500 transition-all"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <button 
+              onClick={exportToCSV}
+              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-black uppercase tracking-widest rounded-xl border border-white/5 transition-all flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+              <Icons.Search />
+            </div>
+            <input
+              type="text"
+              placeholder="Search assets..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="block w-full pl-11 pr-4 py-3 bg-slate-800/50 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-sm text-white placeholder-slate-500 transition-all"
+            />
+          </div>
+
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="block w-full px-4 py-3 bg-slate-800/50 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 text-sm text-white transition-all appearance-none cursor-pointer"
+          >
+            <option value="All">All Categories</option>
+            {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+
+          <button
+            onClick={() => setShowLowStockOnly(!showLowStockOnly)}
+            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all text-sm font-bold ${
+              showLowStockOnly 
+                ? 'bg-red-500/20 border-red-500/50 text-red-400' 
+                : 'bg-slate-800/50 border-white/10 text-slate-400 hover:bg-white/5'
+            }`}
+          >
+            <Icons.Alert />
+            {showLowStockOnly ? 'Showing Low Stock' : 'Filter Low Stock'}
+          </button>
         </div>
       </div>
       

@@ -9,7 +9,7 @@ interface StatsCardsProps {
 
 const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
   const totalValue = products.reduce((acc, p) => acc + (p.price * p.stockLevel), 0);
-  const lowStockCount = products.filter(p => p.stockLevel <= LOW_STOCK_LIMIT).length;
+  const lowStockCount = products.filter(p => p.stockLevel <= p.lowStockThreshold).length;
   const totalStock = products.reduce((acc, p) => acc + p.stockLevel, 0);
 
   return (

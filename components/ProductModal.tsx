@@ -1,18 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product, Category } from '../types';
-import { CATEGORIES } from '../constants.tsx';
+import { CATEGORIES, Icons } from '../constants.tsx';
 
 interface ProductModalProps {
   product?: Product;
+  initialSku?: string;
   onSave: (product: Omit<Product, 'id'>) => void;
   onClose: () => void;
+  onScanRequest?: () => void;
 }
 
-const ProductModal: React.FC<ProductModalProps> = ({ product, onSave, onClose }) => {
+const ProductModal: React.FC<ProductModalProps> = ({ product, initialSku, onSave, onClose, onScanRequest }) => {
   const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     name: '',
-    sku: '',
+    sku: initialSku || '',
     category: 'Electronics' as Category,
     stockLevel: 0,
     price: 0,
@@ -29,8 +31,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onSave, onClose })
         price: product.price,
         lowStockThreshold: product.lowStockThreshold,
       });
+    } else if (initialSku) {
+      setFormData(prev => ({ ...prev, sku: initialSku }));
     }
-  }, [product]);
+  }, [product, initialSku]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,14 +74,26 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onSave, onClose })
 
             <div>
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Serial ID / SKU</label>
-              <input
-                required
-                type="text"
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className={inputStyle}
-                placeholder="SERIAL-000"
-              />
+              <div className="relative group">
+                <input
+                  required
+                  type="text"
+                  value={formData.sku}
+                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                  className={inputStyle + " pr-14"}
+                  placeholder="SERIAL-000"
+                />
+                {onScanRequest && !product && (
+                  <button
+                    type="button"
+                    onClick={onScanRequest}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-xl transition-all border border-indigo-500/20 group-hover:border-indigo-500/50"
+                    title="Scan Barcode"
+                  >
+                    <Icons.Scan />
+                  </button>
+                )}
+              </div>
             </div>
 
             <div>
